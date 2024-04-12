@@ -1,0 +1,5 @@
+<Output>
+<Thinking>This is an example of the XML input we want to parse.</Thinking>
+<Message>Hello, world!</Message>
+<Command>echo "Hello, world!"</Command>
+</Output>
