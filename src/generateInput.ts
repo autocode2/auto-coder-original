@@ -1,6 +1,19 @@
 import fs from 'fs';
 import path from 'path';
 import xml2js from 'xml2js';
+import { exec } from 'child_process';
+
+async function getGitFiles(): Promise<string[]> {
+  return new Promise((resolve, reject) => {
+    exec('git ls-files', (error, stdout, stderr) => {
+      if (error) {
+        reject(error);
+      } else {
+        resolve(stdout.trim().split('\n'));
+      }
+    });
+  });
+}
 
 async function generateXmlInput(filePaths: string[]): Promise<string> {
   const builder = new xml2js.Builder();
@@ -16,12 +29,8 @@ async function generateXmlInput(filePaths: string[]): Promise<string> {
 }
 
 async function main() {
-  const filePaths = process.argv.slice(2);
-  if (filePaths.length === 0) {
-    console.error('Please provide at least one file path as an argument.');
-    return;
-  }
   try {
+    const filePaths = await getGitFiles();
     const xml = await generateXmlInput(filePaths);
     console.log(xml);
   } catch (error) {
