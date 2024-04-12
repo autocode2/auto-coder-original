@@ -3,7 +3,7 @@ import path from 'path';
 import xml2js from 'xml2js';
 import { exec } from 'child_process';
 
-async function getGitFiles(): Promise<string[]> {
+export async function getGitFiles(): Promise<string[]> {
   return new Promise((resolve, reject) => {
     exec('git ls-files', (error, stdout, stderr) => {
       if (error) {
@@ -15,7 +15,7 @@ async function getGitFiles(): Promise<string[]> {
   });
 }
 
-async function generateXmlInput(filePaths: string[]): Promise<string> {
+export async function generateXmlInput(filePaths: string[]): Promise<string> {
   const builder = new xml2js.Builder();
   const filesystemData = {
     Filesystem: await Promise.all(filePaths.map(async (filePath) => ({
