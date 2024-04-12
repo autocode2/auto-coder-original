@@ -1,15 +1,16 @@
 import fs from 'fs';
 import path from 'path';
+import xml2js from 'xml2js';
 
 async function generateXmlInput(filePaths: string[]): Promise<string> {
   const builder = new xml2js.Builder();
   const filesystemData = {
-    Filesystem: filePaths.map((filePath) => ({
+    Filesystem: await Promise.all(filePaths.map(async (filePath) => ({
       File: {
         _: await fs.promises.readFile(filePath, 'utf8'),
         $: { name: path.relative('.', filePath) },
       },
-    })),
+    }))),
   };
   return builder.buildObject(filesystemData);
 }
