@@ -1,3 +1,4 @@
+import fs from 'fs/promises';
 import { program } from 'commander';
 import { generateXmlInput, getGitFiles } from './generateInput';
 import { parseXmlOutput } from './parseOutput';
@@ -23,7 +24,8 @@ program
   .command('parse-output <xmlFilePath>')
   .description('Parse XML output file')
   .action(async (xmlFilePath) => {
-    await parseXmlOutput(xmlFilePath);
+    const xml = await fs.readFile(xmlFilePath)
+    await parseXmlOutput(xml.toString());
   });
 
 program.parse();
