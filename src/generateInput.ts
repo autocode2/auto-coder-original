@@ -16,7 +16,9 @@ export async function getGitFiles(): Promise<string[]> {
 }
 
 export async function generateXmlInput(filePaths: string[]): Promise<string> {
-  const builder = new xml2js.Builder();
+  const builder = new xml2js.Builder({
+    cdata: true
+  });
   const filesystemData = {
     Filesystem: await Promise.all(filePaths.map(async (filePath) => ({
       File: {

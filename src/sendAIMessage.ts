@@ -34,7 +34,7 @@ Use HTML entity encoding where required to output valid html e.g. encode \`&lt;\
 
   rl.question('Enter a message to send to Claude: ', async (userMessage) => {
     const response = await anthropic.messages.create({
-      max_tokens: 1024,
+      max_tokens: 4096,
       system: systemPrompt,
       messages: [
         {role: 'user', content: `<Context>${context}</Context>\n\n${userMessage}`}

@@ -31,22 +31,12 @@ const onError = (error: string) => {
 };
 
 export async function parseXmlOutput(xml: string): Promise<void> {
-  const regex = /<(Thinking|Message|Command|Patch)(?:\s+[^>]*)?\>/g;
+  const regex = /<(Thinking|Message|Command|Patch)(?:\s+[^>]*)?>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/\1>/g;
   let match;
-  let index = 0;
-  
+
   while ((match = regex.exec(xml)) !== null) {
     const tagName = match[1];
-    const startIndex = match.index + match[0].length;
-    const endTag = `</${tagName}>`;
-    const endIndex = xml.indexOf(endTag, startIndex);
-    
-    if (endIndex === -1) {
-      onError(`Missing closing tag for <${tagName}>`);
-      return;
-    }
-    
-    const contents = xml.slice(startIndex, endIndex).trim();
+    const contents = match[2];
     
     switch (tagName) {
       case 'Thinking':
@@ -70,9 +60,6 @@ export async function parseXmlOutput(xml: string): Promise<void> {
       default:
         onError(`Unknown tag <${tagName}>`);
     }
-    
-    index = endIndex + endTag.length;
-    regex.lastIndex = index;
   }
 }
 
