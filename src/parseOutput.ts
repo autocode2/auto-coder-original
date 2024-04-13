@@ -1,4 +1,6 @@
 import fs from 'fs';
+import path from 'path';
+import { decode } from 'html-entities';
 
 const onThinking = (contents: string) => {
   console.log(`Thinking: ${contents}`);
@@ -12,8 +14,11 @@ const onCommand = (contents: string) => {
   console.log(`Command: ${contents}`);  
 };
 
-const onPatch = (contents: string) => {
-  console.log(`Patch: ${contents}`);
+const onPatch = async (filename: string, contents: string) => {
+  const decodedContents = decode(contents.trim());
+  const filePath = path.join(process.cwd(), filename);
+  await fs.promises.writeFile(filePath, decodedContents);
+  console.log(`Wrote patch to ${filePath}`);
 };
 
 const onError = (error: string) => {
@@ -51,7 +56,13 @@ export async function parseXmlOutput(filePath: string): Promise<void> {
         onCommand(contents);
         break;
       case 'Patch':
-        onPatch(contents);
+        const filenameMatch = match[0].match(/filename="([^"]+)"/);
+        if (!filenameMatch) {
+          onError('<Patch> is missing required filename attribute');
+          return;
+        }
+        const filename = filenameMatch[1];
+        await onPatch(filename, contents);
         break;
       default:
         onError(`Unknown tag <${tagName}>`);
