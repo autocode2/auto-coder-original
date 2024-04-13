@@ -1,24 +1,24 @@
 import fs from 'fs';
-import path from 'path';
+import path from 'path';  
 import { decode } from 'html-entities';
 
 const onThinking = (contents: string) => {
   console.log(`Thinking: ${contents}`);
-  console.log();
+  console.log();  
 };
 
-const onMessage = (contents: string) => {  
+const onMessage = (contents: string) => {
   console.log(`Message: ${contents}`);
   console.log();
 };
 
-const onCommand = (contents: string) => {
-  console.log(`Command: ${contents}`);  
+const onCommand = (contents: string) => {  
+  console.log(`Command: ${contents}`);
   console.log();
 };
 
 const onPatch = async (filename: string, contents: string) => {
-  const decodedContents = decode(contents.trim());
+  const decodedContents = decode(contents.trim());  
   const filePath = path.join(process.cwd(), filename);
   await fs.promises.writeFile(filePath, decodedContents);
   console.log(`Wrote patch to ${filePath}`);
@@ -26,7 +26,7 @@ const onPatch = async (filename: string, contents: string) => {
 };
 
 const onError = (error: string) => {
-  console.error(`Error: ${error}`);
+  console.error(`Error: ${error}`); 
   console.log();
 };
 
@@ -55,7 +55,7 @@ export async function parseXmlOutput(xml: string): Promise<void> {
           onError('<Patch> is missing required filename attribute');
           return;
         }
-        const filename = filenameMatch[1];
+        const filename = filenameMatch[1];  
         await onPatch(filename, contents);
         break;
       default:
@@ -63,19 +63,3 @@ export async function parseXmlOutput(xml: string): Promise<void> {
     }
   }
 }
-
-async function main() {
-  const [, , xmlFilePath] = process.argv;
-  if (!xmlFilePath) {
-    console.error('Please provide an XML file path as the first argument.');
-    return;
-  }
-  try {
-    const xml = await fs.promises.readFile(xmlFilePath, 'utf8');
-    await parseXmlOutput(xml);
-  } catch (error) {
-    console.error('Error parsing XML:', error);
-  }
-}
-
-//main();

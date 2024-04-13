@@ -13,11 +13,11 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-async function main() {
+export async function sendMessage() {
   const systemPrompt = `You are an AI coding tool. Help the user with their coding tasks using the output format given.
-You will be given information about the current project in a <Context></Context> element.  This will include the full contents of every file in the project, using <File></File> elements.
+You will be given information about the current project in a <Context></Context> element.  This will include the full contents of every file in the project, using <File></File> elements.  
 Output your response using the following XML.
-<Output></Output> - This is the root tag, your response must contain exactly one of these elements.
+<Output></Output> - This is the root tag, your response must contain exactly one of these elements. 
 The <Output></Output> element contains a list of the following elements:
 <Thinking></Thinking> - You may find it useful to use this space to think about the the user's request and to make a plan before making an action.
 <Message></Message> - Use this element to display a message to the user. Write the message inside the tags, you may use markdown for formatting.
@@ -31,13 +31,13 @@ Wrap the contents of <Message>, <Command>, and <Patch> tags in CDATA sections.
 
   const filePaths = await getGitFiles();
   const context = await generateXmlInput(filePaths);
-
+  
   rl.question('Enter a message to send to Claude: ', async (userMessage) => {
     const response = await anthropic.messages.create({
       max_tokens: 4096,
       system: systemPrompt,
       messages: [
-        {role: 'user', content: `<Context>${context}</Context>\n\n${userMessage}`}
+        {role: 'user', content: `<Context>${context}</Context>\n\n${userMessage}`}  
       ],
       model: 'claude-3-opus-20240229',
     });
@@ -53,5 +53,3 @@ Wrap the contents of <Message>, <Command>, and <Patch> tags in CDATA sections.
     rl.close();
   });
 }
-
-main();

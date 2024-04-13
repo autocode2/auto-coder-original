@@ -29,15 +29,3 @@ export async function generateXmlInput(filePaths: string[]): Promise<string> {
   };
   return builder.buildObject(filesystemData);
 }
-
-async function main() {
-  try {
-    const filePaths = await getGitFiles();
-    const xml = await generateXmlInput(filePaths);
-    console.log(xml);
-  } catch (error) {
-    console.error('Error generating XML:', error);
-  }
-}
-
-//main();

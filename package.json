@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "tsc",
-    "sendAIMessage": "node dist/sendAIMessage.js"
+    "start": "node dist/cli.js"
   },
   "keywords": [],
   "author": "Gareth Andrew",
@@ -17,7 +17,7 @@
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.4.0",
-    "html-entities": "^2.5.2",
+    "html-entities": "^2.5.2", 
     "xml2js": "^0.6.2"
   }
 }
