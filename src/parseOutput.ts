@@ -25,9 +25,7 @@ const onError = (error: string) => {
   console.error(`Error: ${error}`);
 };
 
-export async function parseXmlOutput(filePath: string): Promise<void> {
-  const xml = await fs.promises.readFile(filePath, 'utf8');
-  
+export async function parseXmlOutput(xml: string): Promise<void> {
   const regex = /<(Thinking|Message|Command|Patch)(?:\s+[^>]*)?\>/g;
   let match;
   let index = 0;
@@ -80,10 +78,11 @@ async function main() {
     return;
   }
   try {
-    await parseXmlOutput(xmlFilePath);
+    const xml = await fs.promises.readFile(xmlFilePath, 'utf8');
+    await parseXmlOutput(xml);
   } catch (error) {
     console.error('Error parsing XML:', error);
   }
 }
 
-main();
+//main();
