@@ -1,5 +1,6 @@
 import Anthropic from '@anthropic-ai/sdk';
 import readline from 'readline';
+import fs from 'fs';
 import { generateXmlInput, getGitFiles } from './generateInput';
 import { parseXmlOutput } from './parseOutput';
 
@@ -44,9 +45,10 @@ Use HTML entity encoding where required to output valid html e.g. encode \`&lt;\
     console.log('Claude says:');
     console.log(response.content);
 
-    await parseXmlOutput(
-      response.content.filter(m => m.type === 'text').map(m => m.text).join("\n"),
-    )
+    const outputXml = response.content.filter(m => m.type === 'text').map(m => m.text).join("\n");
+    await fs.promises.writeFile('output.xml', outputXml);
+
+    await parseXmlOutput(outputXml);
 
     rl.close();
   });
