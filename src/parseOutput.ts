@@ -31,12 +31,13 @@ const onError = (error: string) => {
 };
 
 export async function parseXmlOutput(xml: string): Promise<void> {
-  const regex = /<(Thinking|Message|Command|Patch)(?:\s+[^>]*)?>(?:<!\[CDATA\[)?([\s\S]*?)(?:\]\]>)?<\/\1>/g;
+  const regex = /<(Thinking|Message|Command|Patch)(?:\s+[^>]*)?>(?:(<!\[CDATA\[)([\s\S]*?)(\]\]>))?<\/\1>/g;
   let match;
 
   while ((match = regex.exec(xml)) !== null) {
     const tagName = match[1];
-    const contents = match[2];
+    const hasCDATA = match[2] !== undefined;
+    const contents = hasCDATA ? match[3] : match[0].slice(match[0].indexOf('>') + 1, -(`</${tagName}>`).length);
     
     switch (tagName) {
       case 'Thinking':
