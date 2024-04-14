@@ -1,16 +1,12 @@
-import Anthropic from '@anthropic-ai/sdk';
-import readline from 'readline';
 import fs from 'fs';
-import { generateXmlInput, getGitFiles } from './generateInput';
-import { parseXmlOutput } from './parseOutput';
+import readline from 'readline';
+import Anthropic from '@anthropic-ai/sdk';
+import { getGitFiles, generateXmlInput } from '../utils/gitUtils';
+import { parseXmlOutput } from '../utils/xmlUtils';
+import { readUserMessage, writeCosts, writeOutputToFile } from '../utils/messageUtils';
 
 const anthropic = new Anthropic({
   apiKey: process.env['ANTHROPIC_API_KEY'],
-});
-
-const rl = readline.createInterface({
-  input: process.stdin,
-  output: process.stdout
 });
 
 const modelAliases = {
@@ -25,8 +21,7 @@ const modelCosts = {
   'claude-3-haiku-20240307': { input: 0.25, output: 1.25 }
 };
 
-export async function sendMessage(options: {inputFile?: string, model: string}) {
-  const systemPrompt = `You are an AI coding tool. Help the user with their coding tasks using the output format given.
+const systemPrompt = `You are an AI coding tool. Help the user with their coding tasks using the output format given.
 You will be given information about the current project in a <Context></Context> element.  This will include the full contents of every file in the project, using <File></File> elements.  
 Output your response using the following XML.
 <Output></Output> - This is the root tag, your response must contain exactly one of these elements. 
@@ -41,30 +36,11 @@ The <Output></Output> element contains a list of the following elements:
 Wrap the contents of <Message>, <Command>, and <Patch> tags in CDATA sections. Do not leave any space between the opening/closing tags and the CDATA section.
 `;
 
+export async function sendMessage(options: {inputFile?: string, model: string}) {
+  
   const filePaths = await getGitFiles();
   const context = await generateXmlInput(filePaths);
-  
-  let userMessage = '';
-
-  if (options.inputFile) {
-    userMessage = await fs.promises.readFile(options.inputFile, 'utf-8');
-    console.log(`Message read from ${options.inputFile}:`);
-    console.log(userMessage);
-
-    const answer = await new Promise<string>(resolve => {
-      rl.question('Send this message? (Y/n) ', resolve);
-    });
-
-    if (answer.toLowerCase() !== 'y') {
-      console.log('Message sending cancelled');
-      rl.close();
-      return;
-    }
-  } else {  
-    userMessage = await new Promise(resolve => {
-      rl.question('Enter a message to send to Claude: ', resolve);
-    });
-  }
+  const userMessage = await readUserMessage(options.inputFile);
 
   const model = modelAliases[options.model] || options.model;
   
@@ -76,20 +52,11 @@ Wrap the contents of <Message>, <Command>, and <Patch> tags in CDATA sections. D
     ],
     model,
   });
-
-  console.log(`Input tokens: ${response.usage.input_tokens}`);
-  console.log(`Output tokens: ${response.usage.output_tokens}`); 
-
-  const costs = modelCosts[model];
-  const inputCost = response.usage.input_tokens / 1000000 * costs.input;
-  const outputCost = response.usage.output_tokens / 1000000 * costs.output;
-  const totalCost = inputCost + outputCost;
-  console.log(`Total cost: $${totalCost.toFixed(6)}`);
-      
+  
+  writeCosts(response.usage, modelCosts[model]);
+  
   const outputXml = response.content.filter(m => m.type === 'text').map(m => m.text).join("\n");
-  await fs.promises.writeFile('output.xml', outputXml);
+  await writeOutputToFile(outputXml);
 
   await parseXmlOutput(outputXml);
-
-  rl.close();  
 }

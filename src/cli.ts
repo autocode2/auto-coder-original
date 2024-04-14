@@ -1,33 +1,23 @@
-import fs from 'fs/promises';
 import { program } from 'commander';
-import { generateXmlInput, getGitFiles } from './generateInput';
-import { parseXmlOutput } from './parseOutput';
-import { sendMessage } from './sendAIMessage';
+import { generateInput } from './actions/generateInput';
+import { sendMessage } from './actions/sendMessage';
+import { parseOutput } from './actions/parseOutput';
 
 program
   .command('generate-input')
   .description('Generate XML input from Git files')
-  .action(async () => {
-    const filePaths = await getGitFiles();
-    const xml = await generateXmlInput(filePaths);
-    console.log(xml);
-  });
+  .action(generateInput);
 
 program
   .command('send-message')
   .description('Send a message to the AI and parse the response')  
   .option('-i, --input-file <file>', 'Read message from file')
   .option('-m, --model <name>', 'Model name or alias to use (opus, sonnet, haiku)', 'opus')
-  .action(async (options) => {
-    await sendMessage(options);
-  });
+  .action(sendMessage);
 
 program
   .command('parse-output <xmlFilePath>')
   .description('Parse XML output file')
-  .action(async (xmlFilePath) => {
-    const xml = await fs.readFile(xmlFilePath)
-    await parseXmlOutput(xml.toString());
-  });
+  .action(parseOutput);
 
 program.parse();

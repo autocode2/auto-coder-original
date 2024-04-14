@@ -1,24 +1,24 @@
+import path from 'path';
 import fs from 'fs';
-import path from 'path';  
 import { decode } from 'html-entities';
 
 const onThinking = (contents: string) => {
   console.log(`Thinking: ${contents}`);
-  console.log();  
-};
+  console.log();
+};  
 
 const onMessage = (contents: string) => {
   console.log(`Message: ${contents}`);
-  console.log();
+  console.log();    
 };
 
-const onCommand = (contents: string) => {  
+const onCommand = (contents: string) => {
   console.log(`Command: ${contents}`);
   console.log();
 };
 
 const onPatch = async (filename: string, contents: string) => {
-  const decodedContents = decode(contents.trim());  
+  const decodedContents = decode(contents.trim());
   const filePath = path.join(process.cwd(), filename);
   await fs.promises.writeFile(filePath, decodedContents);
   console.log(`Wrote patch to ${filePath}`);
@@ -26,7 +26,7 @@ const onPatch = async (filename: string, contents: string) => {
 };
 
 const onError = (error: string) => {
-  console.error(`Error: ${error}`); 
+  console.error(`Error: ${error}`);
   console.log();
 };
 
