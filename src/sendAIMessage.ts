@@ -36,9 +36,9 @@ The <Output></Output> element contains a list of the following elements:
 <Command></Command> - Execute the given command.  You may assume a unix operating system and the current working directory is set to the project root.
 <Patch></Patch> - Include any code to be altered.  Use the following attributes to add metadata about the patch:
  - filename - the name of the file to be changed
- 
  - type - use "change" for an existing file,  "create" for a new file, and  "delete" without any contents to delete a file.
-Wrap the contents of <Message>, <Command>, and <Patch> tags in CDATA sections.
+
+Wrap the contents of <Message>, <Command>, and <Patch> tags in CDATA sections. Do not leave any space between the opening/closing tags and the CDATA section.
 `;
 
   const filePaths = await getGitFiles();
