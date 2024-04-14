@@ -31,7 +31,7 @@ const onError = (error: string) => {
 };
 
 export async function parseXmlOutput(xml: string): Promise<void> {
-  const regex = /<(Thinking|Message|Command|Patch)(?:\s+[^>]*)?>(?:(<!\[CDATA\[)([\s\S]*?)(\]\]>))?<\/\1>/g;
+  const regex = /<(Thinking|Message|Command|Patch)(?:\s+[^>]*)?>(?:\s*(<!\[CDATA\[)([\s\S]*?)(\]\]>))?<\/\1>/g;
   let match;
 
   while ((match = regex.exec(xml)) !== null) {
