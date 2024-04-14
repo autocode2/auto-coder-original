@@ -15,9 +15,10 @@ program
 
 program
   .command('send-message')
-  .description('Send a message to the AI and parse the response')
-  .action(async () => {
-    await sendMessage();
+  .description('Send a message to the AI and parse the response')  
+  .option('-i, --input-file <file>', 'Read message from file')
+  .action(async (options) => {
+    await sendMessage(options.inputFile);
   });
 
 program

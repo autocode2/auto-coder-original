@@ -13,7 +13,7 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-export async function sendMessage() {
+export async function sendMessage(inputFile?: string) {
   const systemPrompt = `You are an AI coding tool. Help the user with their coding tasks using the output format given.
 You will be given information about the current project in a <Context></Context> element.  This will include the full contents of every file in the project, using <File></File> elements.  
 Output your response using the following XML.
@@ -32,24 +32,44 @@ Wrap the contents of <Message>, <Command>, and <Patch> tags in CDATA sections.
   const filePaths = await getGitFiles();
   const context = await generateXmlInput(filePaths);
   
-  rl.question('Enter a message to send to Claude: ', async (userMessage) => {
-    const response = await anthropic.messages.create({
-      max_tokens: 4096,
-      system: systemPrompt,
-      messages: [
-        {role: 'user', content: `<Context>${context}</Context>\n\n${userMessage}`}  
-      ],
-      model: 'claude-3-opus-20240229',
+  let userMessage = '';
+
+  if (inputFile) {
+    userMessage = await fs.promises.readFile(inputFile, 'utf-8');
+    console.log(`Message read from ${inputFile}:`);
+    console.log(userMessage);
+
+    const answer = await new Promise<string>(resolve => {
+      rl.question('Send this message? (Y/n) ', resolve);
     });
 
-    console.log(`Input tokens: ${response.usage.input_tokens}`);
-    console.log(`Output tokens: ${response.usage.output_tokens}`); 
-    
-    const outputXml = response.content.filter(m => m.type === 'text').map(m => m.text).join("\n");
-    await fs.promises.writeFile('output.xml', outputXml);
+    if (answer.toLowerCase() !== 'y') {
+      console.log('Message sending cancelled');
+      rl.close();
+      return;
+    }
+  } else {  
+    userMessage = await new Promise(resolve => {
+      rl.question('Enter a message to send to Claude: ', resolve);
+    });
+  }
 
-    await parseXmlOutput(outputXml);
-
-    rl.close();
+  const response = await anthropic.messages.create({
+    max_tokens: 4096,
+    system: systemPrompt,    
+    messages: [
+      {role: 'user', content: `<Context>${context}</Context>\n\n${userMessage}`}  
+    ],
+    model: 'claude-3-opus-20240229',
   });
+
+  console.log(`Input tokens: ${response.usage.input_tokens}`);
+  console.log(`Output tokens: ${response.usage.output_tokens}`); 
+      
+  const outputXml = response.content.filter(m => m.type === 'text').map(m => m.text).join("\n");
+  await fs.promises.writeFile('output.xml', outputXml);
+
+  await parseXmlOutput(outputXml);
+
+  rl.close();  
 }
