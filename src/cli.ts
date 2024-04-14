@@ -17,8 +17,9 @@ program
   .command('send-message')
   .description('Send a message to the AI and parse the response')  
   .option('-i, --input-file <file>', 'Read message from file')
+  .option('-m, --model <name>', 'Model name or alias to use (opus, sonnet, haiku)', 'opus')
   .action(async (options) => {
-    await sendMessage(options.inputFile);
+    await sendMessage(options);
   });
 
 program

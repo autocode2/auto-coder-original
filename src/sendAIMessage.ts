@@ -13,7 +13,13 @@ const rl = readline.createInterface({
   output: process.stdout
 });
 
-export async function sendMessage(inputFile?: string) {
+const modelAliases = {
+  opus: 'claude-3-opus-20240229',
+  sonnet: 'claude-3-sonnet-20240229',
+  haiku: 'claude-3-haiku-20240307'
+};
+
+export async function sendMessage(options: {inputFile?: string, model: string}) {
   const systemPrompt = `You are an AI coding tool. Help the user with their coding tasks using the output format given.
 You will be given information about the current project in a <Context></Context> element.  This will include the full contents of every file in the project, using <File></File> elements.  
 Output your response using the following XML.
@@ -34,9 +40,9 @@ Wrap the contents of <Message>, <Command>, and <Patch> tags in CDATA sections.
   
   let userMessage = '';
 
-  if (inputFile) {
-    userMessage = await fs.promises.readFile(inputFile, 'utf-8');
-    console.log(`Message read from ${inputFile}:`);
+  if (options.inputFile) {
+    userMessage = await fs.promises.readFile(options.inputFile, 'utf-8');
+    console.log(`Message read from ${options.inputFile}:`);
     console.log(userMessage);
 
     const answer = await new Promise<string>(resolve => {
@@ -54,13 +60,15 @@ Wrap the contents of <Message>, <Command>, and <Patch> tags in CDATA sections.
     });
   }
 
+  const model = modelAliases[options.model] || options.model;
+  
   const response = await anthropic.messages.create({
     max_tokens: 4096,
     system: systemPrompt,    
     messages: [
       {role: 'user', content: `<Context>${context}</Context>\n\n${userMessage}`}  
     ],
-    model: 'claude-3-opus-20240229',
+    model,
   });
 
   console.log(`Input tokens: ${response.usage.input_tokens}`);
