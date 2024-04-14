@@ -41,10 +41,10 @@ Wrap the contents of <Message>, <Command>, and <Patch> tags in CDATA sections.
       ],
       model: 'claude-3-opus-20240229',
     });
-    
-    //console.log('Claude says:');
-    //console.log(response.content);
 
+    console.log(`Input tokens: ${response.usage.input_tokens}`);
+    console.log(`Output tokens: ${response.usage.output_tokens}`); 
+    
     const outputXml = response.content.filter(m => m.type === 'text').map(m => m.text).join("\n");
     await fs.promises.writeFile('output.xml', outputXml);
 
