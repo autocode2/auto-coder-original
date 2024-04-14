@@ -19,6 +19,12 @@ const modelAliases = {
   haiku: 'claude-3-haiku-20240307'
 };
 
+const modelCosts = {
+  'claude-3-opus-20240229': { input: 15.00, output: 75.00 },
+  'claude-3-sonnet-20240229': { input: 3.00, output: 15.00 },
+  'claude-3-haiku-20240307': { input: 0.25, output: 1.25 }
+};
+
 export async function sendMessage(options: {inputFile?: string, model: string}) {
   const systemPrompt = `You are an AI coding tool. Help the user with their coding tasks using the output format given.
 You will be given information about the current project in a <Context></Context> element.  This will include the full contents of every file in the project, using <File></File> elements.  
@@ -73,6 +79,12 @@ Wrap the contents of <Message>, <Command>, and <Patch> tags in CDATA sections.
 
   console.log(`Input tokens: ${response.usage.input_tokens}`);
   console.log(`Output tokens: ${response.usage.output_tokens}`); 
+
+  const costs = modelCosts[model];
+  const inputCost = response.usage.input_tokens / 1000000 * costs.input;
+  const outputCost = response.usage.output_tokens / 1000000 * costs.output;
+  const totalCost = inputCost + outputCost;
+  console.log(`Total cost: $${totalCost.toFixed(6)}`);
       
   const outputXml = response.content.filter(m => m.type === 'text').map(m => m.text).join("\n");
   await fs.promises.writeFile('output.xml', outputXml);
