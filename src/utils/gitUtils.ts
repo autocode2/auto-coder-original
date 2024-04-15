@@ -2,7 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import xml2js from 'xml2js';
 import { exec } from 'child_process';
-import minimatch from 'minimatch';
+import { minimatch } from 'minimatch';
 
 export async function getGitFiles(excludes: string[] = []): Promise<string[]> {
   return new Promise((resolve, reject) => {

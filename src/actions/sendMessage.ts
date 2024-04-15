@@ -54,7 +54,7 @@ export async function sendMessage(options: {inputFile?: string, model: string, e
     model,
   });
   
-  writeCosts(response.usage, modelCosts[model]);
+  writeCosts(response.usage, modelCosts[model as keyof typeof modelCosts]);
   
   const outputXml = response.content.filter(m => m.type === 'text').map(m => m.text).join("\n");
   await writeOutputToFile(outputXml);
