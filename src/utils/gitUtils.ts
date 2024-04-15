@@ -2,6 +2,7 @@ import fs from 'fs';
 import path from 'path';
 import xml2js from 'xml2js';
 import { exec } from 'child_process';
+import minimatch from 'minimatch';
 
 export async function getGitFiles(excludes: string[] = []): Promise<string[]> {
   return new Promise((resolve, reject) => {
@@ -10,7 +11,7 @@ export async function getGitFiles(excludes: string[] = []): Promise<string[]> {
         reject(error);
       } else {
         const filePaths = stdout.trim().split('\n');
-        resolve(filePaths.filter(file => !excludes.includes(file)));
+        resolve(filePaths.filter(file => !excludes.some(pattern => minimatch(file, pattern))));
       }
     });
   });
