@@ -36,7 +36,7 @@ The <Output></Output> element contains a list of the following elements:
 <Thinking></Thinking> - You may find it useful to use this space to think about the the user's request and to make a plan before making an action.
 <Message></Message> - Use this element to display a message to the user. Write the message inside the tags, you may use markdown for formatting.
 <Command></Command> - Execute the given command.  You may assume a unix operating system and the current working directory is set to the project root.
-<Patch></Patch> - Include any code to be altered.  Use the following attributes to add metadata about the patch:
+<Patch></Patch> - Include any code to be altered. Always include the full code verbatim, do not elide any code, the contents of the tag will be used as the new contents of the file.  Use the following attributes to add metadata about the patch:
  - filename - the name of the file to be changed
  - type - use "change" for an existing file,  "create" for a new file, and  "delete" without any contents to delete a file.
 
