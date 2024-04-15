@@ -5,6 +5,11 @@ import { getGitFiles, generateXmlInput } from '../utils/gitUtils';
 import { parseXmlOutput, XmlOutputHandlers } from '../utils/xmlUtils';
 import { readUserMessage, writeCosts, writeOutputToFile } from '../utils/messageUtils';
 import { readExcludesFile } from '../utils/excludeUtils';
+import { thinkingHandler } from '../output/thinkingHandler';
+import { messageHandler } from '../output/messageHandler';
+import { commandHandler } from '../output/commandHandler';
+import { patchHandler } from '../output/patchHandler';
+import { errorHandler } from '../output/errorHandler';
 
 const anthropic = new Anthropic({
   apiKey: process.env['ANTHROPIC_API_KEY'],
