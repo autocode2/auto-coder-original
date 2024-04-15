@@ -4,6 +4,7 @@ import Anthropic from '@anthropic-ai/sdk';
 import { getGitFiles, generateXmlInput } from '../utils/gitUtils';
 import { parseXmlOutput } from '../utils/xmlUtils';
 import { readUserMessage, writeCosts, writeOutputToFile } from '../utils/messageUtils';
+import { readExcludesFile } from '../utils/excludeUtils';
 
 const anthropic = new Anthropic({
   apiKey: process.env['ANTHROPIC_API_KEY'],
@@ -36,9 +37,9 @@ The <Output></Output> element contains a list of the following elements:
 Wrap the contents of <Message>, <Command>, and <Patch> tags in CDATA sections. Do not leave any space between the opening/closing tags and the CDATA section.
 `;
 
-export async function sendMessage(options: {inputFile?: string, model: string}) {
-  
-  const filePaths = await getGitFiles();
+export async function sendMessage(options: {inputFile?: string, model: string, excludesFile?: string}) {
+  const excludes = await readExcludesFile(options.excludesFile);
+  const filePaths = await getGitFiles(excludes);
   const context = await generateXmlInput(filePaths);
   const userMessage = await readUserMessage(options.inputFile);
 

@@ -3,13 +3,14 @@ import path from 'path';
 import xml2js from 'xml2js';
 import { exec } from 'child_process';
 
-export async function getGitFiles(): Promise<string[]> {
+export async function getGitFiles(excludes: string[] = []): Promise<string[]> {
   return new Promise((resolve, reject) => {
     exec('git ls-files', (error, stdout, stderr) => {
       if (error) {
         reject(error);
       } else {
-        resolve(stdout.trim().split('\n'));
+        const filePaths = stdout.trim().split('\n');
+        resolve(filePaths.filter(file => !excludes.includes(file)));
       }
     });
   });

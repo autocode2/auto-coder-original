@@ -6,6 +6,7 @@ import { parseOutput } from './actions/parseOutput';
 program
   .command('generate-input')
   .description('Generate XML input from Git files')
+  .option('-x, --excludes-file <file>', 'File containing list of files to exclude')
   .action(generateInput);
 
 program
@@ -13,6 +14,7 @@ program
   .description('Send a message to the AI and parse the response')  
   .option('-i, --input-file <file>', 'Read message from file')
   .option('-m, --model <name>', 'Model name or alias to use (opus, sonnet, haiku)', 'opus')
+  .option('-x, --excludes-file <file>', 'File containing list of files to exclude')
   .action(sendMessage);
 
 program
