@@ -1,4 +1,5 @@
 import fs from 'fs';
+import path from 'path';
 import { parseXmlOutput, XmlOutputHandlers } from '../utils/xmlUtils';
 import { decode } from 'html-entities';
 

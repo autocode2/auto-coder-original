@@ -2,7 +2,7 @@ import fs from 'fs';
 import readline from 'readline';
 import Anthropic from '@anthropic-ai/sdk';
 import { getGitFiles, generateXmlInput } from '../utils/gitUtils';
-import { parseXmlOutput } from '../utils/xmlUtils';
+import { parseXmlOutput, XmlOutputHandlers } from '../utils/xmlUtils';
 import { readUserMessage, writeCosts, writeOutputToFile } from '../utils/messageUtils';
 import { readExcludesFile } from '../utils/excludeUtils';
 
@@ -10,7 +10,7 @@ const anthropic = new Anthropic({
   apiKey: process.env['ANTHROPIC_API_KEY'],
 });
 
-const modelAliases = {
+const modelAliases: {[key: string]: string} = {
   opus: 'claude-3-opus-20240229',
   sonnet: 'claude-3-sonnet-20240229',
   haiku: 'claude-3-haiku-20240307'
@@ -37,6 +37,17 @@ The <Output></Output> element contains a list of the following elements:
 Wrap the contents of <Message>, <Command>, and <Patch> tags in CDATA sections. Do not leave any space between the opening/closing tags and the CDATA section.
 `;
 
+const xmlOutputHandlers: XmlOutputHandlers = {
+  onThinking: (contents: string) => console.log(`Thinking: ${contents}\n`),
+  onMessage: (contents: string) => console.log(`Message: ${contents}\n`),
+  onCommand: (contents: string) => console.log(`Command: ${contents}\n`),
+  onPatch: async (filename, contents) => {
+    await fs.promises.writeFile(filename, contents);
+    console.log(`Wrote patch to ${filename}\n`); 
+  },
+  onError: (error: string) => console.error(`Error: ${error}\n`)
+};
+
 export async function sendMessage(options: {inputFile?: string, model: string, excludesFile?: string}) {
   const excludes = await readExcludesFile(options.excludesFile);
   const filePaths = await getGitFiles(excludes);
@@ -59,5 +70,5 @@ export async function sendMessage(options: {inputFile?: string, model: string, e
   const outputXml = response.content.filter(m => m.type === 'text').map(m => m.text).join("\n");
   await writeOutputToFile(outputXml);
 
-  await parseXmlOutput(outputXml);
+  await parseXmlOutput(outputXml, xmlOutputHandlers);
 }
