@@ -9,13 +9,16 @@ export interface XmlOutputHandlers {
 }
 
 export async function parseXmlOutput(xml: string, handlers: XmlOutputHandlers): Promise<void> {
-  const regex = /<(Thinking|Message|Command|Patch)(?:\s+[^>]*)?>(?:\s*(<!\[CDATA\[)([\s\S]*?)(\]\]>))?<\/\1>/g;
+  const regex = /<(Thinking|Message|Command|Patch)(?:\s+[^>]*)?>(?:(\s*<!\[CDATA\[)?([\s\S]*?)(\]\]>)?\s*)?<\/\1>/g;
   let match;
 
   while ((match = regex.exec(xml)) !== null) {
     const tagName = match[1];
     const hasCDATA = match[2] !== undefined;
-    const contents = hasCDATA ? match[3] : match[0].slice(match[0].indexOf('>') + 1, -(`</${tagName}>`).length);
+    let contents = match[3];
+    if (!hasCDATA) {
+      contents = decode(contents);
+    }
     
     switch (tagName) {
       case 'Thinking':
