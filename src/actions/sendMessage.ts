@@ -1,6 +1,7 @@
 import fs from 'fs';
 import readline from 'readline';
 import Anthropic from '@anthropic-ai/sdk';
+import ora from 'ora';
 import { getGitFiles, generateXmlInput } from '../utils/gitUtils';
 import { parseXmlOutput, XmlOutputHandlers } from '../utils/xmlUtils';
 import { readUserMessage, writeCosts, writeOutputToFile } from '../utils/messageUtils';
@@ -61,6 +62,7 @@ export async function sendMessage(options: {inputFile?: string, model: string, e
 
   const model = modelAliases[options.model] || options.model;
   
+  const spinner = ora(`Sending message to Claude (${model})...`).start();
   const response = await anthropic.messages.create({
     max_tokens: 4096,
     system: systemPrompt,    
@@ -69,6 +71,7 @@ export async function sendMessage(options: {inputFile?: string, model: string, e
     ],
     model,
   });
+  spinner.stop();
   
   writeCosts(response.usage, modelCosts[model as keyof typeof modelCosts]);
   
