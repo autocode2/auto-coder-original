@@ -7,7 +7,7 @@ program
   .command('generate-input')
   .description('Generate XML input from Git files')
   .option('-x, --excludes-file <file>', 'File containing list of files to exclude')
-  .option('-f, --focus <glob>', 'Minimatch glob pattern to focus on', (val, acc) => [...acc, val], [])
+  .option<string[]>('-f, --focus <glob>', 'Minimatch glob pattern to focus on', (val: string, prev: string[]) => ([...prev, val]), [] as string[])
   .action(generateInput);
 
 program
@@ -16,7 +16,7 @@ program
   .option('-i, --input-file <file>', 'Read message from file')
   .option('-m, --model <name>', 'Model name or alias to use (opus, sonnet, haiku)', 'opus')
   .option('-x, --excludes-file <file>', 'File containing list of files to exclude')
-  .option('-f, --focus <glob>', 'Minimatch glob pattern to focus on', (val, acc) => [...acc, val], [])
+  .option<string[]>('-f, --focus <glob>', 'Minimatch glob pattern to focus on', (val: string, prev: string[]) => ([...prev, val]), [] as string[])
   .action(sendMessage);
 
 program
