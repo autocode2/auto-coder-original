@@ -11,6 +11,7 @@ import { messageHandler } from '../output/messageHandler';
 import { commandHandler } from '../output/commandHandler';
 import { patchHandler } from '../output/patchHandler';
 import { errorHandler } from '../output/errorHandler';
+import { minimatch } from 'minimatch';
 
 const anthropic = new Anthropic({
   apiKey: process.env['ANTHROPIC_API_KEY'],
@@ -54,9 +55,10 @@ const xmlOutputHandlers: XmlOutputHandlers = {
   onError: (error: string) => console.error(`Error: ${error}\n`)
 };
 
-export async function sendMessage(options: {inputFile?: string, model: string, excludesFile?: string}) {
+export async function sendMessage(options: {inputFile?: string, model: string, excludesFile?: string, focus?: string[]}) {
   const excludes = await readExcludesFile(options.excludesFile);
-  const filePaths = await getGitFiles(excludes);
+  const focus = options.focus || [];
+  const filePaths = await getGitFiles(excludes, focus);
   const context = await generateXmlInput(filePaths);
   const userMessage = await readUserMessage(options.inputFile);
 

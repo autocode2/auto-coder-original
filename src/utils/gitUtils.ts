@@ -4,14 +4,18 @@ import xml2js from 'xml2js';
 import { exec } from 'child_process';
 import { minimatch } from 'minimatch';
 
-export async function getGitFiles(excludes: string[] = []): Promise<string[]> {
+export async function getGitFiles(excludes: string[] = [], focus: string[] = []): Promise<string[]> {
   return new Promise((resolve, reject) => {
     exec('git ls-files', (error, stdout, stderr) => {
       if (error) {
         reject(error);
       } else {
         const filePaths = stdout.trim().split('\n');
-        resolve(filePaths.filter(file => !excludes.some(pattern => minimatch(file, pattern))));
+        const filteredFiles = filePaths.filter(file => {
+          return !excludes.some(pattern => minimatch(file, pattern)) &&
+                 (focus.length === 0 || focus.some(pattern => minimatch(file, pattern)));
+        });
+        resolve(filteredFiles);
       }
     });
   });
