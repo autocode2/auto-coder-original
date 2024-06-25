@@ -17,9 +17,9 @@ const anthropic = new Anthropic({
   apiKey: process.env['ANTHROPIC_API_KEY'],
 });
 
-const modelAliases: {[key: string]: string} = {
+const modelAliases: { [key: string]: string } = {
   opus: 'claude-3-opus-20240229',
-  sonnet: 'claude-3-sonnet-20240229',
+  sonnet: 'claude-3.5-sonnet',
   haiku: 'claude-3-haiku-20240307'
 };
 
@@ -50,12 +50,12 @@ const xmlOutputHandlers: XmlOutputHandlers = {
   onCommand: (contents: string) => console.log(`Command: ${contents}\n`),
   onPatch: async (filename, contents) => {
     await fs.promises.writeFile(filename, contents);
-    console.log(`Wrote patch to ${filename}\n`); 
+    console.log(`Wrote patch to ${filename}\n`);
   },
   onError: (error: string) => console.error(`Error: ${error}\n`)
 };
 
-export async function sendMessage(options: {inputFile?: string, model: string, excludesFile?: string, focus?: string[]}) {
+export async function sendMessage(options: { inputFile?: string, model: string, excludesFile?: string, focus?: string[] }) {
   const excludes = await readExcludesFile(options.excludesFile);
   const focus = options.focus || [];
   const filePaths = await getGitFiles(excludes, focus);
@@ -63,20 +63,20 @@ export async function sendMessage(options: {inputFile?: string, model: string, e
   const userMessage = await readUserMessage(options.inputFile);
 
   const model = modelAliases[options.model] || options.model;
-  
+
   const spinner = ora(`Sending message to Claude (${model})...`).start();
   const response = await anthropic.messages.create({
     max_tokens: 4096,
-    system: systemPrompt,    
+    system: systemPrompt,
     messages: [
-      {role: 'user', content: `<Context>${context}</Context>\n\n${userMessage}`}  
+      { role: 'user', content: `<Context>${context}</Context>\n\n${userMessage}` }
     ],
     model,
   });
   spinner.stop();
-  
+
   writeCosts(response.usage, modelCosts[model as keyof typeof modelCosts]);
-  
+
   const outputXml = response.content.filter(m => m.type === 'text').map(m => m.text).join("\n");
   await writeOutputToFile(outputXml);
 
