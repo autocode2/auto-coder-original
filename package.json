@@ -1,14 +1,14 @@
 {
-  "name": "claude-auto-coder-bootstrap",
+  "name": "@autocode2/auto-coder-original",
   "version": "1.0.0",
-  "description": "",
+  "description": "An AI generated AI code generator",
   "main": "index.js",
   "scripts": {
     "build": "tsc",
     "start": "node dist/cli.js",
     "test": "jest"
   },
-  "keywords": [],
+  "keywords": ["ai", "code generator", "autocode", "anthropic"],
   "author": "Gareth Andrew",
   "license": "ISC",
   "devDependencies": {
